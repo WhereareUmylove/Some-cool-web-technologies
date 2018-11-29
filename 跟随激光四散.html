@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="flashlight"></canvas>
+</body>
+<script type="text/javascript">
+	var canvas=document.getElementById('flashlight');
+	setCanvas();
+	window.onresize=setCanvas;
+	function setCanvas(){
+	canvas.width=window.innerWidth;
+	canvas.height=window.innerHeight;
+	// canvas有默认的文本对齐方式，会导致即使宽高为屏幕宽高，也会出现滚动条，变成块元素就行
+	canvas.style.display="block";
+	canvas.style.backgroundColor="black";
+	}
+	var ctx=canvas.getContext('2d');
+	var circleArr=[];
+	var colorArr=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+	function getRanColor(){
+		var str='#';
+		for(var i=0;i<6;i++){
+			str+=colorArr[parseInt(Math.random()*16)];
+		}
+		return str;
+	}
+	function circle(x,y){	
+		this.x=parseInt(Math.random()+x);
+		this.y=parseInt(Math.random()+y);
+		this.radius=parseInt(Math.random()*15+10);
+		this.color=getRanColor();
+		this.vx=Math.random()*20-10;
+		this.vy=Math.random()*20-10;
+		
+		circleArr.push(this)
+		this.draw();
+	}
+	circle.prototype.draw=function(){
+		var grd=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.radius);
+		grd.addColorStop(0,"white");
+		grd.addColorStop(0.4,"white");
+		grd.addColorStop(0.4,this.color);
+		grd.addColorStop(1,"black");
+		ctx.fillStyle=grd;
+	ctx.beginPath();
+	ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+	ctx.fill();
+	}
+	canvas.onmousemove = function(res){
+		console.log(res)
+		x = res.offsetX;
+		y = res.offsetY;
+		for(var i=0;i<1;i++){
+
+	new circle(x,y);
+	}
+	}
+	
+	var x=0,y=0;
+function render(){
+	ctx.globalCompositeOperation="source-over";
+	ctx.fillStyle="rgba(0,0,0,0.3)";
+	ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
+	ctx.globalCompositeOperation="lighter";
+	// ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+	for(var i=0;i<circleArr.length;i++){
+		if(circleArr[i].x>window.innerWidth||circleArr[i].y>window.innerHeight||circleArr[i].x<0||circleArr[i].y<0){
+		// circleArr[i].x=parseInt(Math.random()*window.innerWidth);
+		// circleArr[i].y=parseInt(Math.random()*window.innerHeight);
+		// circleArr[i].vx=Math.random()*20-10;
+		// circleArr[i].vy=Math.random()*20-10;
+		circleArr.splice(i,1);
+		continue;
+		}
+		circleArr[i].draw();
+	circleArr[i].x+=circleArr[i].vx;
+	circleArr[i].y+=circleArr[i].vy;
+	}
+requestAnimationFrame(render);
+}
+render();
+</script>
+</html>
